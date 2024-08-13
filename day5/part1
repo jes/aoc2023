@@ -1,0 +1,66 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	line := scanner.Text()
+	parts := strings.Split(line, " ")
+	seeds := make([]uint64, 0)
+	for _, v := range parts[1:] {
+		i, _ := strconv.ParseInt(v, 10, 64)
+		seeds = append(seeds, uint64(i))
+	}
+
+	scanner.Scan() // blank line
+
+	nums := seeds
+
+	for scanner.Scan() { // header line
+		theMap := make([][]uint64, 0)
+		for scanner.Scan() { // actual line
+			line := scanner.Text()
+			parts := strings.Split(line, " ")
+			if len(parts) < 3 {
+				break
+			}
+			m := make([]uint64, 0)
+			for _, v := range parts {
+				i, _ := strconv.ParseInt(v, 10, 64)
+				m = append(m, uint64(i))
+			}
+			theMap = append(theMap, m)
+		}
+		nums = mapAccordingly(nums, theMap)
+	}
+
+	smallest := nums[0]
+	for _, n := range nums {
+		if n < smallest {
+			smallest = n
+		}
+	}
+	fmt.Println("Part 1:", smallest)
+
+}
+
+func mapAccordingly(nums []uint64, theMap [][]uint64) []uint64 {
+	for i, n := range nums {
+		for _, m := range theMap {
+			outStart := m[0]
+			inStart := m[1]
+			length := m[2]
+			if n >= inStart && n < inStart+length {
+				nums[i] = n - inStart + outStart
+			}
+		}
+	}
+	return nums
+}
